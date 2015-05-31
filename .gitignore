@@ -3,3 +3,4 @@
 *.iml
 .gradle
 build
+gradle-2.4/
