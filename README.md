@@ -1,8 +1,8 @@
 #This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway in Java
 
 ##Webservice authentication
-You'll need to create a test account in [Adyen website] (https://www.adyen.com/home/discover/test-account-signup#form)
-They'll provide to you a webservice user, webservice password and a merchant account code
+You'll need to create a test account in [Adyen website] (https://www.adyen.com/home/discover/test-account-signup#form).
+They'll provide to you a webservice user, webservice password and a merchant account code.
 
 ##Installation and Run
 ```
@@ -30,8 +30,6 @@ Example:
     "reference": "order-id-1"
  }
  ```
-
-###POST
 /capture
 
 Example:
@@ -46,5 +44,5 @@ Example:
 }
 ```
 
-This application use [Gradle] (https://www.gradle.org) to build and deploy application
-[Lohan Bodevan] (mailto:lohan.bodevan@gmail.com)
+This application use [Gradle] (https://www.gradle.org) to build and deploy application.
+Contact: [Lohan Bodevan] (mailto:lohan.bodevan@gmail.com)
