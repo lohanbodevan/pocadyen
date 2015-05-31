@@ -1,8 +1,12 @@
-#This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway
+#This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway in Java
 
+##Installation and Run
+```
+Execute "start.sh" file
 The API run in http://localhost:8080
+```
 
-##POST
+###POST
 /authorize
 
 Example:
@@ -23,7 +27,7 @@ Example:
  }
  ```
 
-##POST
+###POST
 /capture
 
 Example:
@@ -37,3 +41,6 @@ Example:
     "reference": "order-id-1"
 }
 ```
+
+This application use [Gradle] (https://www.gradle.org) to build and deploy application
+[Lohan Bodevan] (mailto:lohan.bodevan@gmail.com)

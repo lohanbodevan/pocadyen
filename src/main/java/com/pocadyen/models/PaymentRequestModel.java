@@ -19,6 +19,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,9 +32,7 @@ public class PaymentRequestModel {
     //@TODO Transform in environment variables
     private String apiAuthorizeUrl = "https://pal-test.adyen.com/pal/servlet/Payment/v10/authorise";
     private String apiCaptureUrl = "https://pal-test.adyen.com/pal/servlet/Payment/v12/capture";
-    private String wsUser = "";
-    private String wsPassword = "";
-    private String merchantAccount = "";
+    private String merchantAccount;
 
     //HTTP Request and Response objects
     private HttpClient client;
@@ -41,12 +41,11 @@ public class PaymentRequestModel {
 
     public PaymentRequestModel() {
         if (this.client == null) {
-            //Create Authentication with webservice
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(this.wsUser, this.wsPassword);
-            provider.setCredentials(AuthScope.ANY, credentials);
-
-            this.client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            try {
+                this.createWebserviceAuthentication();
+            }catch (Exception ex) {
+                Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Authentication error");
+            }
         }
     }
 
@@ -84,16 +83,19 @@ public class PaymentRequestModel {
         }
 
         AuthorizeResponseWrapper responseWrapper = new AuthorizeResponseWrapper();
-        responseWrapper.setPspReference((String) paymentResult.get("pspReference"));
-        responseWrapper.setResultCode((String) paymentResult.get("resultCode"));
-        responseWrapper.setAuthCode((String) paymentResult.get("authCode"));
-        responseWrapper.setRefusalReason((String) paymentResult.get("refusalReason"));
+        responseWrapper.setPspReference((String) this.paymentResult.get("pspReference"));
+        responseWrapper.setResultCode((String) this.paymentResult.get("resultCode"));
+        responseWrapper.setAuthCode((String) this.paymentResult.get("authCode"));
+        responseWrapper.setRefusalReason((String) this.paymentResult.get("refusalReason"));
 
         // If the request was rejected, raise an exception
         if (this.httpResponse.getStatusLine().getStatusCode() != 200) {
-            responseWrapper.setResultCode((String) paymentResult.get("errorCode"));
-            responseWrapper.setMessage((String) paymentResult.get("message"));
-            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Authorize error: " + paymentResult.get("errorType"));
+            responseWrapper.setResultCode((String) this.paymentResult.get("errorCode"));
+            responseWrapper.setMessage((String) this.paymentResult.get("message"));
+
+            Logger.getLogger(PaymentRequestModel.class.getName()).log(
+                    Level.SEVERE, "Authorize error: " + this.paymentResult.get("errorType")
+            );
         }
 
         return responseWrapper;
@@ -125,14 +127,16 @@ public class PaymentRequestModel {
         }
 
         CaptureResponseWrapper responseWrapper = new CaptureResponseWrapper();
-        responseWrapper.setPspReference((String) paymentResult.get("pspReference"));
-        responseWrapper.setResponse((String) paymentResult.get("response"));
+        responseWrapper.setPspReference((String) this.paymentResult.get("pspReference"));
+        responseWrapper.setResponse((String) this.paymentResult.get("response"));
 
-        // If the doRequest was rejected, raise an exception
+        // If the request was rejected, raise an exception
         if (this.httpResponse.getStatusLine().getStatusCode() != 200) {
-            responseWrapper.setErroCode((String) paymentResult.get("errorCode"));
-            responseWrapper.setMessage((String) paymentResult.get("message"));
-            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Capure error: " + paymentResult.get("errorType"));
+            responseWrapper.setErroCode((String) this.paymentResult.get("errorCode"));
+            responseWrapper.setMessage((String) this.paymentResult.get("message"));
+            Logger.getLogger(PaymentRequestModel.class.getName()).log(
+                    Level.SEVERE, "Capture error: " + this.paymentResult.get("errorType")
+            );
         }
 
         return responseWrapper;
@@ -146,7 +150,6 @@ public class PaymentRequestModel {
 
         try {
             this.httpResponse = client.execute(httpRequest);
-            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.INFO, "Response: " + this.httpResponse);
         }catch (IOException ex) {
             Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Communication fault!", ex);
             throw new IOException("Service Unavailable");
@@ -154,9 +157,9 @@ public class PaymentRequestModel {
 
         String paymentResponse;
 
+        // Get HTTP Response
         try {
             paymentResponse = EntityUtils.toString(this.httpResponse.getEntity(), "UTF-8");
-            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.INFO, "Payment Response: " + paymentResponse);
         } catch (IOException ex) {
             Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Response to String parser error!", ex);
             throw new IOException("Internal Server Error");
@@ -166,9 +169,40 @@ public class PaymentRequestModel {
         JSONParser parser = new JSONParser();
         try {
             this.paymentResult = (JSONObject) parser.parse(paymentResponse);
-            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.INFO, "Payment Result: " + this.paymentResult);
         } catch (ParseException ex) {
             Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.INFO, "JSON Parser error " + ex);
+            throw new IOException("Internal Server Error");
+        }
+    }
+
+    private void createWebserviceAuthentication() throws IOException {
+        JSONObject jsonObject;
+        JSONParser parser = new JSONParser();
+
+        try {
+            //Read webservice auth from webservice-config-file.json
+            jsonObject = (JSONObject) parser.parse(new FileReader("webservice-config-file.json"));
+            this.merchantAccount = (String) jsonObject.get("merchantAccount");
+
+            //Create Authentication with webservice
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+                    (String) jsonObject.get("wsUser"), (String) jsonObject.get("wsPassword")
+            );
+            provider.setCredentials(AuthScope.ANY, credentials);
+
+            this.client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Config file not found");
+            throw new FileNotFoundException("Internal Server Error");
+
+        } catch (IOException ex) {
+            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Error to read config file");
+            throw new IOException("Internal Server Error");
+
+        } catch (ParseException ex) {
+            Logger.getLogger(PaymentRequestModel.class.getName()).log(Level.SEVERE, "Parse error in config file");
             throw new IOException("Internal Server Error");
         }
     }
