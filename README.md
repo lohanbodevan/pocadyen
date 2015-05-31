@@ -2,8 +2,8 @@
 
 ##Webservice authentication
 You'll need to create a test account in [Adyen website] (https://www.adyen.com/home/discover/test-account-signup#form).
-
 They'll provide to you a webservice user, webservice password and a merchant account code.
+Put those credentials in "webservice-confi-file.json" locate in this project root path.
 
 ##Installation and Run
 ```
