@@ -19,7 +19,7 @@ Example:
 {
     "amount": {
         "currency": "BRL",
-        "value": "10000"
+        "value": "100"
     },
     "card": {
         "expiryMonth": "6",
@@ -28,7 +28,7 @@ Example:
         "number": "4111111111111111",
         "cvc": "737"
     },
-    "reference": "order-id-1"
+    "reference": "order-id-5"
  }
  ```
 /capture

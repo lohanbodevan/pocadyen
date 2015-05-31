@@ -54,7 +54,7 @@ public class PaymentRequestModel {
         JSONObject paymentRequest = new JSONObject();
         paymentRequest.put("merchantAccount", this.merchantAccount);
         paymentRequest.put("reference", authorize.getReference());
-        paymentRequest.put("fraudOffset", "0");
+        paymentRequest.put("fraudOffset", "1");
 
         // Set amount
         JSONObject amount = new JSONObject();
