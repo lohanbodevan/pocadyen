@@ -12,7 +12,7 @@ import java.util.Map;
  *           "value": "100"
  *       },
  *       "card": {
- *           "expiryMonth": "6",
+ *           "expiryMonth": "06",
  *           "expiryYear": "2016",
  *           "holderName": "John Smith",
  *           "number": "4111111111111111",
