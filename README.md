@@ -1,4 +1,4 @@
-#POC ADYEN
+#This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway
 
 The API run in http://localhost:8080
 
