@@ -45,6 +45,6 @@ Example:
 }
 ```
 
-This application use [Gradle] (https://www.gradle.org) to build and deploy.
+This application use [Gradle](https://www.gradle.org) to build and deploy.
 
-Author: [Lohan Bodevan] (mailto:lohan.bodevan@gmail.com)
+Author: [Lohan Bodevan](mailto:lohan.bodevan@gmail.com)
