@@ -1,17 +1,17 @@
-#This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway in Java
+# This is a simple POC of the integration with [ADYEN] (https://www.adyen.com) Gateway in Java
 
-##Webservice authentication
-You'll need to create a test account in [Adyen website] (https://www.adyen.com/home/discover/test-account-signup#form).
+## Webservice authentication
+You'll need to create a test account in [Adyen website](https://www.adyen.com/home/discover/test-account-signup#form).
 They'll provide to you a webservice user, webservice password and a merchant account code.
 Put those credentials in "webservice-confi-file.json" locate in this project root path.
 
-##Installation and Run
+## Installation and Run
 ```
 Execute "start.sh" file
 The API run in http://localhost:8080
 ```
 
-###POST
+### POST
 /authorize
 
 Example:
